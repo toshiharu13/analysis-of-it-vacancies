@@ -1,0 +1,10 @@
+.git/*
+
+venv/
+.venv
+.venv/
+
+*.env
+.env
+
+.idea
