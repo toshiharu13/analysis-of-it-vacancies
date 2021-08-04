@@ -46,17 +46,44 @@ for page in range(0, 10):
     # Задаём {путь до текущего документа со скриптом}\docs
     # Имя(число) файла зависит от количества имеющихся в папке
     # Будущему файлу с информацией запроса
-    nextFileName = './docs/{}.json'.format(len(os.listdir('./docs')))
+    nextFileName = './docs/pagination/{}.json'.format(len(os.listdir('./docs/pagination')))
 
     # Создаем файл, записываем в него ответ запроса, после закрываем
     with open(nextFileName, mode='w', encoding='utf8') as f:
         f.write(json.dumps(jsObj, ensure_ascii=False))
 
-    # Проверка на последнюю страницу, если вакансий меньше 2000
+    # Проверка на последнюю страницу, если вакансий меньше 1000
     if (jsObj['pages'] - page) <= 1:
         break
 
-    # Необязательная задержка, но чтобы не нагружать сервисы hh, оставим. 5 сек мы может подождать
-    time.sleep(5)
+    # Необязательная задержка, но чтобы не нагружать сервисы hh, оставим .5 сек мы может подождать
+    time.sleep(0.5)
 
 logging.info('Старницы поиска собраны')
+
+# Получаем перечень ранее созданных файлов со списком вакансий и проходимся по нему в цикле
+for fl in os.listdir('./docs/pagination'):
+
+    # Открываем файл, читаем его содержимое, закрываем файл
+    with open('./docs/pagination/{}'.format(fl), encoding='utf8') as f:
+        jsonText = f.read()
+
+    # Преобразуем полученный текст в объект справочника
+    jsonObj = json.loads(jsonText)
+
+    # Получаем и проходимся по непосредственно списку вакансий
+    for v in jsonObj['items']:
+        # Обращаемся к API и получаем детальную информацию по конкретной вакансии
+        req = requests.get(v['url'])
+        #data = req.content.decode()
+        #req.close()
+
+        # Создаем файл в формате json с идентификатором вакансии в качестве названия
+        # Записываем в него ответ запроса и закрываем файл
+        fileName = './docs/vacancies/{}.json'.format(v['id'])
+        with open(fileName, mode='w', encoding='utf8') as f:
+            f.write(req)
+
+        time.sleep(0.5)
+
+logging.info('Вакансии собраны')
