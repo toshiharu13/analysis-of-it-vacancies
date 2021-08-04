@@ -4,7 +4,6 @@ venv/
 .venv
 .venv/
 
-*.env
-.env
+docs/
 
 .idea
