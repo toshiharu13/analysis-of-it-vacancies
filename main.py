@@ -10,6 +10,9 @@ import time
 
 # Модуль для работы с операционной системой. Будем использовать для работы с файлами
 import os
+import pandas as pd
+# Библиотека для работы с СУБД
+from sqlalchemy import engine as sql
 
 
 logging.basicConfig(
@@ -31,7 +34,7 @@ def getPage(page=0):
         # Текст фильтра. В имени должно быть слово "Backend Python разработчик"
         'area': 2,  # Поиск ощуществляется по вакансиям города Петребург
         'page': page,  # Индекс страницы поиска на HH
-        'per_page': 100  # Кол-во вакансий на 1 странице
+        'per_page': 5  # Кол-во вакансий на 1 странице
     }
 
     # Посылаем запрос к API
@@ -40,7 +43,7 @@ def getPage(page=0):
 
 
 # Считываем первые 1000 вакансий
-for page in range(0, 10):
+for page in range(0, 1):
     jsObj = getPage(page)
 
     # Задаём {путь до текущего документа со скриптом}\docs
@@ -74,7 +77,7 @@ for fl in os.listdir('./docs/pagination'):
     # Получаем и проходимся по непосредственно списку вакансий
     for v in jsonObj['items']:
         # Обращаемся к API и получаем детальную информацию по конкретной вакансии
-        req = requests.get(v['url'])
+        req = requests.get(v['url']).json()
         #data = req.content.decode()
         #req.close()
 
@@ -82,8 +85,59 @@ for fl in os.listdir('./docs/pagination'):
         # Записываем в него ответ запроса и закрываем файл
         fileName = './docs/vacancies/{}.json'.format(v['id'])
         with open(fileName, mode='w', encoding='utf8') as f:
-            f.write(req)
+            f.write(json.dumps(req, ensure_ascii=False))
+            # f.write(json.dumps(jsObj, ensure_ascii=False))
 
         time.sleep(0.5)
 
 logging.info('Вакансии собраны')
+
+# Создаем списки для столбцов таблицы vacancies
+IDs = []  # Список идентификаторов вакансий
+names = []  # Список наименований вакансий
+descriptions = []  # Список описаний вакансий
+skills_id = []  # Список идентификаторов скилов
+
+# Создаем списки для столбцов таблицы skills
+skills_name = []  # Список названий навыков
+skills_vac = []  # Список идентификаторов скилов
+
+# Проходимся по всем файлам в папке vacancies
+for fl in os.listdir('./docs/vacancies'):
+
+    # Открываем, читаем
+    with open('./docs/vacancies/{}'.format(fl), encoding='utf8') as f:
+        jsonText = f.read()
+
+    # Текст файла переводим в справочник
+    jsonObj = json.loads(jsonText)
+
+    # Заполняем списки для таблиц
+    IDs.append(jsonObj['id'])
+    names.append(jsonObj['name'])
+    descriptions.append(jsonObj['description'])
+
+    # Т.к. навыки хранятся в виде массива, то проходимся по нему циклом
+    for skl in jsonObj['key_skills']:
+        skills_vac.append(jsonObj['id'])
+        skills_name.append(skl['name'])
+
+
+# Создадим соединение с БД
+eng = sql.create_engine(
+    'postgresql://testuser:testuser@127.0.0.1:5432/testdb')
+conn = eng.connect()
+
+# Создаем пандосовский датафрейм, который затем сохраняем в БД в таблицу vacancies
+df = pd.DataFrame({'hh_id': IDs, 'name': names, 'discription': descriptions})
+df.to_sql('vacancies', conn, schema='public', if_exists='append', index=False)
+
+# Тоже самое, но для таблицы skills
+df = pd.DataFrame({'vacancies_id': skills_vac, 'skill': skills_name})
+df.to_sql('skills', conn, schema='public', if_exists='append', index=False)
+
+# Закрываем соединение с БД
+conn.close()
+
+# Выводим сообщение об окончании программы
+logging.info('Вакансии загружены в БД')
