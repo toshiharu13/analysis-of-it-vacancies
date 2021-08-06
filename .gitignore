@@ -7,3 +7,5 @@ venv/
 docs/
 
 .idea
+
+logs.log
