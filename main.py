@@ -9,7 +9,7 @@ import json
 import time
 
 # Модуль для работы с операционной системой. Будем использовать для работы с файлами
-import os
+import os, shutil
 import pandas as pd
 # Библиотека для работы с СУБД
 from sqlalchemy import engine as sql
@@ -133,11 +133,17 @@ df = pd.DataFrame({'hh_id': IDs, 'name': names, 'discription': descriptions})
 df.to_sql('vacancies', conn, schema='public', if_exists='append', index=False)
 
 # Тоже самое, но для таблицы skills
-df = pd.DataFrame({'vacancies_id': skills_vac, 'skill': skills_name})
+df = pd.DataFrame({'vacancies_id': skills_vac, 'skills': skills_name})
 df.to_sql('skills', conn, schema='public', if_exists='append', index=False)
 
 # Закрываем соединение с БД
 conn.close()
 
-# Выводим сообщение об окончании программы
 logging.info('Вакансии загружены в БД')
+# чистим временные файлы
+logging.info('чистка файлов')
+shutil.rmtree('./docs/pagination')
+shutil.rmtree('./docs/vacancies')
+os.mkdir('./docs/pagination')
+os.mkdir('./docs/vacancies')
+logging.info('завешаем работу')
