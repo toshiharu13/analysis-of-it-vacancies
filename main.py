@@ -18,7 +18,7 @@ from sqlalchemy import engine as sql
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s; %(levelname)s; %(name)s; %(message)s',
-    filename='logs.lod',
+    filename='logs.log',
     filemode='w',
     )
 
