@@ -15,13 +15,25 @@ logging.basicConfig(
 
 
 def amount_of_vacancies(language):
-
     params = {
         'text': {language},
     }
-
     req = requests.get('https://api.hh.ru/vacancies', params=params)
     return req.json()
+
+
+def predict_rub_salary(vacancy):
+    vacancy_salary = vacancy['salary']
+    if vacancy_salary['currency'] != 'RUR':
+        return None
+    if not vacancy_salary['from'] and not vacancy_salary['to']:
+        return None
+    if not vacancy_salary['from']:
+        return vacancy_salary['to']*0.8
+    elif not vacancy_salary['to']:
+        return vacancy_salary['from']*1.2
+    else:
+        return (vacancy_salary['from']+vacancy_salary['to'])/2
 
 
 if __name__ == "__main__":
@@ -30,9 +42,9 @@ if __name__ == "__main__":
         count_of_langs = amount_of_vacancies(programm_lang)['found']
         POPULAR_LANGUAGES[programm_lang] = count_of_langs
     print(POPULAR_LANGUAGES)'''
+
     python_vacancies = amount_of_vacancies('Python')['items']
     for vacancy in python_vacancies:
-        print(vacancy['salary'])
+        print(predict_rub_salary(vacancy))
 
-    #print(python_vacancies)
 
