@@ -28,19 +28,19 @@ def amount_of_vacancies(language, page=0, per_page=20):
     return req.json()
 
 
-
-def get_amount_sj_vacancies():
+def get_amount_sj_vacancies(profession):
     headers = {
         'X-Api-App-Id': os.getenv('SUPERJOB_KEY')
     }
     params = {
-        'keyword': 'Программист',
+        'keyword': profession,
         'town': 'Москва',
     }
     url = 'https://api.superjob.ru/2.0/vacancies/'
     response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     return response.json()
+
 
 def predict_rub_salary(vacancy):
     vacancy_salary = vacancy['salary']
@@ -55,6 +55,16 @@ def predict_rub_salary(vacancy):
     else:
         return (vacancy_salary['from']+vacancy_salary['to'])/2
 
+
+def predict_rub_salary_sj(vacancy):
+    if not vacancy['payment_from'] and not vacancy['payment_to']:
+        return None
+    if not vacancy['payment_from']:
+        return vacancy['payment_to']*0.8
+    elif not vacancy['payment_to']:
+        return vacancy['payment_from']*1.2
+    else:
+        return (vacancy['payment_from'] + vacancy['payment_to'])/2
 
 def show_all_vacancy(language):
     response_hh_api = amount_of_vacancies(language)
@@ -90,8 +100,9 @@ if __name__ == "__main__":
                                             'average_salary': int(average_salary),
                                             }
     print(POPULAR_LANGUAGES)'''
-    all_sj_vacancies = get_amount_sj_vacancies()['objects']
+    all_sj_vacancies = get_amount_sj_vacancies('Програмист')['objects']
     for vacancy in all_sj_vacancies:
-        print(vacancy['profession'], vacancy['town']['title'])
+        salary = predict_rub_salary_sj(vacancy)
+        print(vacancy['profession'], vacancy['town']['title'], salary)
 
 
