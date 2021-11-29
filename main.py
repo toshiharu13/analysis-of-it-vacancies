@@ -1,6 +1,8 @@
 import logging
 import requests
 import time
+import os
+from dotenv import load_dotenv
 
 POPULAR_LANGUAGES = {'Python': 0, 'Java': 0, 'Javascript': 0,
                      'Ruby': 0, 'PHP': 0, 'C++': 0, 'C#': 0,
@@ -26,6 +28,20 @@ def amount_of_vacancies(language, page=0, per_page=20):
     return req.json()
 
 
+
+def get_amount_sj_vacancies():
+    headers = {
+        'X-Api-App-Id': os.getenv('SUPERJOB_KEY')
+    }
+    params = {
+        'keyword': 'Программист',
+        'town': 'Москва',
+    }
+    url = 'https://api.superjob.ru/2.0/vacancies/'
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+    return response.json()
+
 def predict_rub_salary(vacancy):
     vacancy_salary = vacancy['salary']
     if not vacancy_salary or vacancy_salary['currency'] != 'RUR':
@@ -47,16 +63,17 @@ def show_all_vacancy(language):
     pages = response_hh_api['pages']
     if pages > 100:
         pages = 100
-    for page in range(1, 5):
+    for page in range(1, pages):
         response_hh_api = amount_of_vacancies(language, page)
         python_vacancy += response_hh_api['items']
         logging.info(response_hh_api['page'])
-        time.sleep(1)
+        time.sleep(1.5)
     return (python_vacancy,response_hh_api['found'])
 
 
 if __name__ == "__main__":
-    for programm_lang in POPULAR_LANGUAGES:
+    load_dotenv()
+    '''for programm_lang in POPULAR_LANGUAGES:
         all_vacancy_and_found = show_all_vacancy(programm_lang)
         language_vacancies = all_vacancy_and_found[0]
         vacancies_processed = 0
@@ -72,6 +89,9 @@ if __name__ == "__main__":
                                             'vacancies_processed': vacancies_processed,
                                             'average_salary': int(average_salary),
                                             }
-    print(POPULAR_LANGUAGES)
+    print(POPULAR_LANGUAGES)'''
+    all_sj_vacancies = get_amount_sj_vacancies()['objects']
+    for vacancy in all_sj_vacancies:
+        print(vacancy['profession'], vacancy['town']['title'])
 
 
