@@ -26,8 +26,13 @@ def amount_of_vacancies(language):
 
 if __name__ == "__main__":
 
-    for programm_lang in POPULAR_LANGUAGES:
+    '''for programm_lang in POPULAR_LANGUAGES:
         count_of_langs = amount_of_vacancies(programm_lang)['found']
         POPULAR_LANGUAGES[programm_lang] = count_of_langs
-    print(POPULAR_LANGUAGES)
+    print(POPULAR_LANGUAGES)'''
+    python_vacancies = amount_of_vacancies('Python')['items']
+    for vacancy in python_vacancies:
+        print(vacancy['salary'])
+
+    #print(python_vacancies)
 
