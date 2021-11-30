@@ -1,22 +1,23 @@
+import copy
 import logging
-import requests
-import time
 import os
+import time
+
+import requests
 from dotenv import load_dotenv
 from terminaltables import AsciiTable
-import copy
-
 
 POPULAR_LANGUAGES = [
-    ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'],
+    ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано',
+     'Средняя зарплата'],
     ['Python', 0, 0, 0],
-    #['Java', 0, 0, 0],
-    #['Javascript', 0, 0, 0],
-    #['PHP', 0, 0, 0],
-    #['C++', 0, 0, 0],
-    #['C#', 0, 0, 0],
-    #['C', 0, 0, 0],
-    #['Go', 0, 0, 0]
+    ['Java', 0, 0, 0],
+    ['Javascript', 0, 0, 0],
+    ['PHP', 0, 0, 0],
+    ['C++', 0, 0, 0],
+    ['C#', 0, 0, 0],
+    ['C', 0, 0, 0],
+    ['Go', 0, 0, 0]
     ]
 
 
@@ -68,7 +69,7 @@ def predict_rub_salary_for_hh(vacancy):
         return (vacancy_salary['from']+vacancy_salary['to'])/2
 
 
-def predict_rub_salary_for_superJob(vacancy):
+def predict_rub_salary_for_sj(vacancy):
     if not vacancy['payment_from'] and not vacancy['payment_to']:
         return None
     if not vacancy['payment_from']:
@@ -77,6 +78,7 @@ def predict_rub_salary_for_superJob(vacancy):
         return vacancy['payment_from']*1.2
     else:
         return (vacancy['payment_from'] + vacancy['payment_to'])/2
+
 
 def show_all_vacancy(language):
     response_hh_api = get_amount_of_hh_vacancies(language)
@@ -130,7 +132,7 @@ if __name__ == "__main__":
         average_salary = 0
         vacancies_found = sj_response['total']
         for sj_vacancy in all_sj_vacancies:
-            salary = predict_rub_salary_for_superJob(sj_vacancy)
+            salary = predict_rub_salary_for_sj(sj_vacancy)
             if salary:
                 vacancies_processed += 1
                 average_salary += salary
@@ -148,6 +150,3 @@ if __name__ == "__main__":
 
     hh_table = AsciiTable(hh_table_data, 'HH Moscow')
     print(hh_table.table)
-
-
-
