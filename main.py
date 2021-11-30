@@ -3,11 +3,21 @@ import requests
 import time
 import os
 from dotenv import load_dotenv
+from terminaltables import AsciiTable
 
-POPULAR_LANGUAGES = {'Python': 0, 'Java': 0, 'Javascript': 0,
-                     'Ruby': 0, 'PHP': 0, 'C++': 0, 'C#': 0,
-                     'C': 0, 'Go': 0, 'Scala': 0,
-                     }
+
+POPULAR_LANGUAGES = [
+    ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'],
+    ['Python', 0, 0, 0],
+    ['Java', 0, 0, 0],
+    #['Javascript', 0, 0, 0],
+    #['PHP', 0, 0, 0],
+    #['C++', 0, 0, 0],
+    #['C#', 0, 0, 0],
+    #['C', 0, 0, 0],
+    #['Go', 0, 0, 0]
+    ]
+
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -28,9 +38,9 @@ def amount_of_vacancies(language, page=0, per_page=20):
     return req.json()
 
 
-def get_amount_sj_vacancies(profession):
+def get_amount_sj_vacancies(profession, sj_key):
     headers = {
-        'X-Api-App-Id': os.getenv('SUPERJOB_KEY')
+        'X-Api-App-Id': sj_key
     }
     params = {
         'keyword': profession,
@@ -56,7 +66,7 @@ def predict_rub_salary(vacancy):
         return (vacancy_salary['from']+vacancy_salary['to'])/2
 
 
-def predict_rub_salary_sj(vacancy):
+def predict_rub_salary_for_superJob(vacancy):
     if not vacancy['payment_from'] and not vacancy['payment_to']:
         return None
     if not vacancy['payment_from']:
@@ -83,6 +93,7 @@ def show_all_vacancy(language):
 
 if __name__ == "__main__":
     load_dotenv()
+    sj_key = os.getenv('SUPERJOB_KEY')
     '''for programm_lang in POPULAR_LANGUAGES:
         all_vacancy_and_found = show_all_vacancy(programm_lang)
         language_vacancies = all_vacancy_and_found[0]
@@ -100,9 +111,32 @@ if __name__ == "__main__":
                                             'average_salary': int(average_salary),
                                             }
     print(POPULAR_LANGUAGES)'''
-    all_sj_vacancies = get_amount_sj_vacancies('Програмист')['objects']
-    for vacancy in all_sj_vacancies:
-        salary = predict_rub_salary_sj(vacancy)
-        print(vacancy['profession'], vacancy['town']['title'], salary)
+    # обработка данных API SuperJob
+    sj_table_data = POPULAR_LANGUAGES[:]
+    for programming_lang in sj_table_data:
+        if type(programming_lang[1]) == str:
+            continue
+        sj_response = get_amount_sj_vacancies(programming_lang[0], sj_key)
+        all_sj_vacancies = sj_response['objects']
+        vacancies_processed = 0
+        average_salary = 0
+        vacancies_found = sj_response['total']
+        for sj_vacancy in all_sj_vacancies:
+            salary = predict_rub_salary_for_superJob(sj_vacancy)
+            if salary:
+                vacancies_processed += 1
+                average_salary += salary
+            time.sleep(1)
+
+        programming_lang[1] = vacancies_processed
+        programming_lang[2] = int(vacancies_found)
+        programming_lang[3] = int(average_salary)
+
+        logging.info(sj_table_data)
+
+    sj_table = AsciiTable(sj_table_data, 'SuperJob Moscow')
+    sj_table.justify_columns[4] = 'right'
+    print(sj_table.table)
+
 
 
