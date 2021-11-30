@@ -33,6 +33,7 @@ def get_amount_of_hh_vacancies(language, page=0, per_page=20):
         'text': language,
         'page': page,
         'per_page': per_page,
+        'area': 1
     }
     req = requests.get('https://api.hh.ru/vacancies', params=params)
     req.raise_for_status()
@@ -145,7 +146,7 @@ if __name__ == "__main__":
     sj_table = AsciiTable(sj_table_data, 'SuperJob Moscow')
     print(sj_table.table)
 
-    hh_table = AsciiTable(hh_table_data, 'HH')
+    hh_table = AsciiTable(hh_table_data, 'HH Moscow')
     print(hh_table.table)
 
 
