@@ -55,29 +55,22 @@ def get_amount_sj_vacancies(profession, sj_key):
     return response.json()
 
 
+def predict_salary(block_salary_info, field_from, field_to):
+    if not block_salary_info[field_from] and not block_salary_info[field_to]:
+        return None
+    if not block_salary_info[field_from]:
+        return block_salary_info[field_to] * 0.8
+    elif not block_salary_info[field_to]:
+        return block_salary_info[field_from] * 1.2
+    else:
+        return (block_salary_info[field_from] + block_salary_info[field_to]) / 2
+
+
 def predict_rub_salary_for_hh(vacancy):
     vacancy_salary = vacancy['salary']
     if not vacancy_salary or vacancy_salary['currency'] != 'RUR':
         return None
-    if not vacancy_salary['from'] and not vacancy_salary['to']:
-        return None
-    if not vacancy_salary['from']:
-        return vacancy_salary['to']*0.8
-    elif not vacancy_salary['to']:
-        return vacancy_salary['from']*1.2
-    else:
-        return (vacancy_salary['from']+vacancy_salary['to'])/2
-
-
-def predict_rub_salary_for_sj(vacancy):
-    if not vacancy['payment_from'] and not vacancy['payment_to']:
-        return None
-    if not vacancy['payment_from']:
-        return vacancy['payment_to']*0.8
-    elif not vacancy['payment_to']:
-        return vacancy['payment_from']*1.2
-    else:
-        return (vacancy['payment_from'] + vacancy['payment_to'])/2
+    return predict_salary(vacancy_salary, 'from', 'to')
 
 
 def show_all_vacancy(language):
@@ -117,8 +110,8 @@ if __name__ == "__main__":
                 average_salary_hh += salary
         average_salary_hh = average_salary_hh/vacancies_processed_hh
 
-        programm_lang[1] = vacancies_processed_hh
-        programm_lang[2] = int(vacancies_found_hh)
+        programm_lang[1] = int(vacancies_found_hh)
+        programm_lang[2] = vacancies_processed_hh
         programm_lang[3] = int(average_salary_hh)
         logging.info(f'hh {hh_table_data}')
 
@@ -132,15 +125,16 @@ if __name__ == "__main__":
         average_salary = 0
         vacancies_found = sj_response['total']
         for sj_vacancy in all_sj_vacancies:
-            salary = predict_rub_salary_for_sj(sj_vacancy)
+            #salary = predict_rub_salary_for_sj(sj_vacancy)
+            salary = predict_salary(sj_vacancy, 'payment_from', 'payment_to')
             if salary:
                 vacancies_processed += 1
                 average_salary += salary
             time.sleep(1)
         average_salary = average_salary / vacancies_processed
 
-        programming_lang[1] = vacancies_processed
-        programming_lang[2] = int(vacancies_found)
+        programming_lang[1] = int(vacancies_found)
+        programming_lang[2] = vacancies_processed
         programming_lang[3] = int(average_salary)
         logging.info(f'sj {sj_table_data}')
 
