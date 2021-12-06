@@ -9,22 +9,17 @@
 
 ## Как установить
 - Cклонировать проект
-
-
-        $ https://github.com/toshiharu13/images_to_telegram.git
+        `https://github.com/toshiharu13/images_to_telegram.git`
 
  - Установить requirements.txt
-
-
-        $ pip install -r requirements.txt
+        `pip install -r requirements.txt`
 
 - Создать файл .env и заполнить в нем переменные:
 
-   - ```SUPERJOB_KEY``` - <ваш api ключ к superjob.ru>
+   - ```SUPERJOB_KEY=```<ваш api ключ к superjob.ru>
 
 ## запуск
-
-      python3 main.py
+`python3 main.py`
 ## Цель проекта
 Код написан в образовательных целях на онлайн-курсе для веб-разработчиков [Devman](https://dvmn.org).
 
