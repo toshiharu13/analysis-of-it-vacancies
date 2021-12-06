@@ -6,6 +6,6 @@ venv/
 
 docs/
 
-.idea
+.idea/
 
 logs.log
