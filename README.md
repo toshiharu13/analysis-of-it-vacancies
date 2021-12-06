@@ -20,7 +20,7 @@
 
 - Создать файл .env и заполнить в нем переменные:
 
-   - SUPERJOB_KEY=<ваш api ключ к superjob.ru>
+   - ```SUPERJOB_KEY``` - <ваш api ключ к superjob.ru>
 
 ## запуск
 
