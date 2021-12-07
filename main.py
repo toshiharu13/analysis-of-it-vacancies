@@ -95,7 +95,7 @@ def show_all_vacancy(language):
         response_hh_api = get_amount_of_hh_vacancies(language, page)
         python_vacancy += response_hh_api['items']
         time.sleep(2)
-    return (python_vacancy, response_hh_api['found'])
+    return python_vacancy, response_hh_api['found']
 
 
 def average_salary_and_vac_procesed_hh(all_vacancies):
@@ -131,9 +131,7 @@ if __name__ == "__main__":
 
     # Обработка данных HH.ru
     for programm_lang in POPULAR_LANGUAGES:
-        all_vacancy_and_found = show_all_vacancy(programm_lang)
-        all_hh_vacancies = all_vacancy_and_found[0]
-        vacancies_found_hh = all_vacancy_and_found[1]
+        all_hh_vacancies, vacancies_found_hh = show_all_vacancy(programm_lang)
         average_salary_hh, vacancies_processed_hh = average_salary_and_vac_procesed_hh(all_hh_vacancies)
 
         prepare_salary_to_table(
