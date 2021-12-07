@@ -10,12 +10,12 @@ from terminaltables import AsciiTable
 POPULAR_LANGUAGES = {
     'Python',
     'Java',
-    #'Javascript',
-    #'PHP',
-    #'C++',
-    #'C#',
-    #'C',
-    #'Go'
+    'Javascript',
+    'PHP',
+    'C++',
+    'C#',
+    'C',
+    'Go'
 }
 MOSCOW = 1
 
@@ -91,7 +91,7 @@ def fetch_all_pages_vacancy(language):
     python_vacancy += response_hh_api['items']
     pages = response_hh_api['pages']
     time.sleep(1)
-    for page in range(1, 3):
+    for page in range(1, pages):
         response_hh_api = fetch_hh_vacancies(language, page)
         python_vacancy += response_hh_api['items']
         time.sleep(2)
