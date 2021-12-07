@@ -10,12 +10,12 @@ from terminaltables import AsciiTable
 POPULAR_LANGUAGES = {
     'Python',
     'Java',
-    'Javascript',
-    'PHP',
-    'C++',
-    'C#',
-    'C',
-    'Go'
+    #'Javascript',
+    #'PHP',
+    #'C++',
+    #'C#',
+    #'C',
+    #'Go'
 }
 
 
@@ -27,7 +27,7 @@ logging.basicConfig(
     )
 
 
-def get_amount_of_hh_vacancies(language, page=0, per_page=20):
+def fetch_hh_vacancies(language, page=0, per_page=20):
     params = {
         'text': language,
         'page': page,
@@ -39,7 +39,7 @@ def get_amount_of_hh_vacancies(language, page=0, per_page=20):
     return req.json()
 
 
-def get_amount_sj_vacancies(profession, sj_key):
+def fetch_sj_vacancies(profession, sj_key):
     headers = {
         'X-Api-App-Id': sj_key
     }
@@ -83,8 +83,8 @@ def prepare_salary_to_table(
 
 
 
-def show_all_vacancy(language):
-    response_hh_api = get_amount_of_hh_vacancies(language)
+def fetch_all_pages_vacancy(language):
+    response_hh_api = fetch_hh_vacancies(language)
     python_vacancy = []
     python_vacancy += response_hh_api['items']
     pages = response_hh_api['pages']
@@ -92,13 +92,13 @@ def show_all_vacancy(language):
     if pages > 100:  # из расчета 20 вакасий на страницу(глубина <= 2000)
         pages = 100
     for page in range(1, 3):
-        response_hh_api = get_amount_of_hh_vacancies(language, page)
+        response_hh_api = fetch_hh_vacancies(language, page)
         python_vacancy += response_hh_api['items']
         time.sleep(2)
     return python_vacancy, response_hh_api['found']
 
 
-def average_salary_and_vac_procesed_hh(all_vacancies):
+def average_salary_and_vacancy_processed_hh(all_vacancies):
     vacancies_processed = 0
     average_salary = 0
     for vacancy in all_vacancies:
@@ -110,7 +110,7 @@ def average_salary_and_vac_procesed_hh(all_vacancies):
     return average_salary, vacancies_processed
 
 
-def average_salary_and_vac_procesed_sj(all_vacancies):
+def average_salary_and_vacancy_processed_sj(all_vacancies):
     vacancies_processed = 0
     average_salary = 0
     for vacancy in all_vacancies:
@@ -131,8 +131,8 @@ if __name__ == "__main__":
 
     # Обработка данных HH.ru
     for programm_lang in POPULAR_LANGUAGES:
-        all_hh_vacancies, vacancies_found_hh = show_all_vacancy(programm_lang)
-        average_salary_hh, vacancies_processed_hh = average_salary_and_vac_procesed_hh(all_hh_vacancies)
+        all_hh_vacancies, vacancies_found_hh = fetch_all_pages_vacancy(programm_lang)
+        average_salary_hh, vacancies_processed_hh = average_salary_and_vacancy_processed_hh(all_hh_vacancies)
 
         prepare_salary_to_table(
             programm_lang, vacancies_found_hh, vacancies_processed_hh,
@@ -142,10 +142,10 @@ if __name__ == "__main__":
 
     # Обработка данных API SuperJob
     for programming_lang in POPULAR_LANGUAGES:
-        sj_response = get_amount_sj_vacancies(programming_lang, sj_key)
+        sj_response = fetch_sj_vacancies(programming_lang, sj_key)
         all_sj_vacancies = sj_response['objects']
         vacancies_found = sj_response['total']
-        average_salary, vacancies_processed = average_salary_and_vac_procesed_sj(all_sj_vacancies)
+        average_salary, vacancies_processed = average_salary_and_vacancy_processed_sj(all_sj_vacancies)
 
         prepare_salary_to_table(
             programming_lang, vacancies_found, vacancies_processed,
