@@ -91,8 +91,6 @@ def fetch_all_pages_vacancy(language):
     python_vacancy += response_hh_api['items']
     pages = response_hh_api['pages']
     time.sleep(1)
-    if pages > 100:  # из расчета 20 вакасий на страницу(глубина <= 2000)
-        pages = 100
     for page in range(1, 3):
         response_hh_api = fetch_hh_vacancies(language, page)
         python_vacancy += response_hh_api['items']
