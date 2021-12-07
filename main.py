@@ -131,7 +131,6 @@ if __name__ == "__main__":
     hh_table_data = []
     sj_table_data = []
 
-    # Обработка данных HH.ru
     for programm_lang in POPULAR_LANGUAGES:
         all_hh_vacancies, vacancies_found_hh = fetch_all_pages_vacancy(programm_lang)
         average_salary_hh, vacancies_processed_hh = average_salary_and_vacancy_processed_hh(all_hh_vacancies)
@@ -142,7 +141,6 @@ if __name__ == "__main__":
             hh_table_data)
         logging.info(f'hh {hh_table_data}')
 
-    # Обработка данных API SuperJob
     for programming_lang in POPULAR_LANGUAGES:
         sj_response = fetch_sj_vacancies(programming_lang, sj_key)
         all_sj_vacancies = sj_response['objects']
@@ -154,7 +152,6 @@ if __name__ == "__main__":
             average_salary, sj_table_data)
         logging.info(f'sj {sj_table_data}')
 
-    # Вывод данных в виде таблиц
     sj_table = AsciiTable(sj_table_data, 'SuperJob Moscow')
     print(sj_table.table)
 
