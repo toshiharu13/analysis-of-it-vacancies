@@ -95,8 +95,32 @@ def show_all_vacancy(language):
         response_hh_api = get_amount_of_hh_vacancies(language, page)
         python_vacancy += response_hh_api['items']
         time.sleep(2)
-    #logging.info(python_vacancy)
     return (python_vacancy, response_hh_api['found'])
+
+
+def average_salary_and_vac_procesed_hh(all_vacancies):
+    vacancies_processed = 0
+    average_salary = 0
+    for vacancy in all_vacancies:
+        salary = predict_rub_salary_for_hh(vacancy)
+        if salary:
+            vacancies_processed += 1
+            average_salary += salary
+    average_salary = int(average_salary / vacancies_processed)
+    return average_salary, vacancies_processed
+
+
+def average_salary_and_vac_procesed_sj(all_vacancies):
+    vacancies_processed = 0
+    average_salary = 0
+    for vacancy in all_vacancies:
+        salary = predict_salary(vacancy, 'payment_from', 'payment_to')
+        if salary:
+            vacancies_processed += 1
+            average_salary += salary
+        time.sleep(1)
+    average_salary = int(average_salary / vacancies_processed)
+    return average_salary, vacancies_processed
 
 
 if __name__ == "__main__":
@@ -109,15 +133,8 @@ if __name__ == "__main__":
     for programm_lang in POPULAR_LANGUAGES:
         all_vacancy_and_found = show_all_vacancy(programm_lang)
         all_hh_vacancies = all_vacancy_and_found[0]
-        vacancies_processed_hh = 0
-        average_salary_hh = 0
         vacancies_found_hh = all_vacancy_and_found[1]
-        for hh_vacancy in all_hh_vacancies:
-            salary = predict_rub_salary_for_hh(hh_vacancy)
-            if salary:
-                vacancies_processed_hh += 1
-                average_salary_hh += salary
-        average_salary_hh = int(average_salary_hh/vacancies_processed_hh)
+        average_salary_hh, vacancies_processed_hh = average_salary_and_vac_procesed_hh(all_hh_vacancies)
 
         prepare_salary_to_table(
             programm_lang, vacancies_found_hh, vacancies_processed_hh,
@@ -129,16 +146,8 @@ if __name__ == "__main__":
     for programming_lang in POPULAR_LANGUAGES:
         sj_response = get_amount_sj_vacancies(programming_lang, sj_key)
         all_sj_vacancies = sj_response['objects']
-        vacancies_processed = 0
-        average_salary = 0
         vacancies_found = sj_response['total']
-        for sj_vacancy in all_sj_vacancies:
-            salary = predict_salary(sj_vacancy, 'payment_from', 'payment_to')
-            if salary:
-                vacancies_processed += 1
-                average_salary += salary
-            time.sleep(1)
-        average_salary = int(average_salary / vacancies_processed)
+        average_salary, vacancies_processed = average_salary_and_vac_procesed_sj(all_sj_vacancies)
 
         prepare_salary_to_table(
             programming_lang, vacancies_found, vacancies_processed,
