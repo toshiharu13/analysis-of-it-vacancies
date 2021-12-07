@@ -17,6 +17,7 @@ POPULAR_LANGUAGES = {
     #'C',
     #'Go'
 }
+MOSCOW = 1
 
 
 logging.basicConfig(
@@ -32,7 +33,7 @@ def fetch_hh_vacancies(language, page=0, per_page=20):
         'text': language,
         'page': page,
         'per_page': per_page,
-        'area': 1
+        'area': MOSCOW
     }
     req = requests.get('https://api.hh.ru/vacancies', params=params)
     req.raise_for_status()
@@ -79,7 +80,8 @@ def prepare_salary_to_table(
         ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано',
          'Средняя зарплата'],
         )
-    table_data.append([programm_lang, vacancies_found, vacancies_processed, average_salary])
+    table_data.append(
+        [programm_lang, vacancies_found, vacancies_processed, average_salary])
 
 
 
