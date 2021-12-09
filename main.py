@@ -77,7 +77,7 @@ def fetch_all_pages_vacancy(language):
     return all_lang_vacancies, response_hh_api['found']
 
 
-def average_salary_and_vacancy_processed_hh(all_vacancies):
+def get_average_salary_and_vacancy_processed_hh(all_vacancies):
     vacancies_processed = 0
     average_salary = 0
     for vacancy in all_vacancies:
@@ -89,7 +89,7 @@ def average_salary_and_vacancy_processed_hh(all_vacancies):
     return average_salary, vacancies_processed
 
 
-def average_salary_and_vacancy_processed_sj(all_vacancies):
+def get_average_salary_and_vacancy_processed_sj(all_vacancies):
     vacancies_processed = 0
     average_salary = 0
     for vacancy in all_vacancies:
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     for programm_lang in POPULAR_LANGUAGES:
         all_hh_vacancies, vacancies_found_hh = fetch_all_pages_vacancy(programm_lang)
-        average_salary_hh, vacancies_processed_hh = average_salary_and_vacancy_processed_hh(all_hh_vacancies)
+        average_salary_hh, vacancies_processed_hh = get_average_salary_and_vacancy_processed_hh(all_hh_vacancies)
 
         prepare_salary_to_table(
             programm_lang, vacancies_found_hh, vacancies_processed_hh,
@@ -140,7 +140,7 @@ if __name__ == "__main__":
         sj_response = fetch_sj_vacancies(programming_lang, sj_api_key)
         all_sj_vacancies = sj_response['objects']
         vacancies_found = sj_response['total']
-        average_salary, vacancies_processed = average_salary_and_vacancy_processed_sj(all_sj_vacancies)
+        average_salary, vacancies_processed = get_average_salary_and_vacancy_processed_sj(all_sj_vacancies)
 
         prepare_salary_to_table(
             programming_lang, vacancies_found, vacancies_processed,
