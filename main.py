@@ -1,4 +1,3 @@
-import copy
 import logging
 import os
 import time
@@ -6,26 +5,6 @@ import time
 import requests
 from dotenv import load_dotenv
 from terminaltables import AsciiTable
-
-POPULAR_LANGUAGES = {
-    'Python',
-    'Java',
-    'Javascript',
-    'PHP',
-    'C++',
-    'C#',
-    'C',
-    'Go'
-}
-MOSCOW = 1
-
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s; %(levelname)s; %(name)s; %(message)s',
-    filename='logs.log',
-    filemode='w',
-    )
 
 
 def fetch_hh_vacancies(language, page=0, per_page=20):
@@ -124,7 +103,25 @@ def average_salary_and_vacancy_processed_sj(all_vacancies):
 
 
 if __name__ == "__main__":
+    POPULAR_LANGUAGES = {
+        'Python',
+        'Java',
+        'Javascript',
+        'PHP',
+        'C++',
+        'C#',
+        'C',
+        'Go'
+    }
+    MOSCOW = 1
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s; %(levelname)s; %(name)s; %(message)s',
+        filename='logs.log',
+        filemode='w',
+    )
     load_dotenv()
+
     sj_key = os.getenv('SUPERJOB_KEY')
     hh_table_data = []
     sj_table_data = []
