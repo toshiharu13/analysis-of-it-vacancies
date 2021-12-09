@@ -33,15 +33,15 @@ def fetch_sj_vacancies(profession, sj_key):
     return response.json()
 
 
-def predict_salary(block_salary_info, field_from, field_to):
-    if not block_salary_info[field_from] and not block_salary_info[field_to]:
+def predict_salary(salary_info, field_from, field_to):
+    if not salary_info[field_from] and not salary_info[field_to]:
         return None
-    if not block_salary_info[field_from]:
-        return block_salary_info[field_to] * 0.8
-    elif not block_salary_info[field_to]:
-        return block_salary_info[field_from] * 1.2
+    if not salary_info[field_from]:
+        return salary_info[field_to] * 0.8
+    elif not salary_info[field_to]:
+        return salary_info[field_from] * 1.2
     else:
-        return (block_salary_info[field_from] + block_salary_info[field_to]) / 2
+        return (salary_info[field_from] + salary_info[field_to]) / 2
 
 
 def predict_rub_salary_for_hh(vacancy):
@@ -53,13 +53,13 @@ def predict_rub_salary_for_hh(vacancy):
 
 def prepare_salary_to_table(
         programm_lang, vacancies_found, vacancies_processed, average_salary,
-        table_data):
-    if not table_data:
-        table_data.append(
+        table_vacancies_info):
+    if not table_vacancies_info:
+        table_vacancies_info.append(
         ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано',
          'Средняя зарплата'],
         )
-    table_data.append(
+    table_vacancies_info.append(
         [programm_lang, vacancies_found, vacancies_processed, average_salary])
 
 
@@ -70,7 +70,7 @@ def fetch_all_pages_vacancy(language):
     all_lang_vacancies += response_hh_api['items']
     pages = response_hh_api['pages']
     time.sleep(1)
-    for page in range(1, pages):
+    for page in range(1, 3):
         response_hh_api = fetch_hh_vacancies(language, page)
         all_lang_vacancies += response_hh_api['items']
         time.sleep(2)
@@ -122,9 +122,9 @@ if __name__ == "__main__":
     )
     load_dotenv()
 
-    sj_key = os.getenv('SUPERJOB_KEY')
-    hh_table_data = []
-    sj_table_data = []
+    sj_api_key = os.getenv('SUPERJOB_KEY')
+    hh_table_vacancies_info = []
+    sj_table_vacancies_info = []
 
     for programm_lang in POPULAR_LANGUAGES:
         all_hh_vacancies, vacancies_found_hh = fetch_all_pages_vacancy(programm_lang)
@@ -133,22 +133,22 @@ if __name__ == "__main__":
         prepare_salary_to_table(
             programm_lang, vacancies_found_hh, vacancies_processed_hh,
             average_salary_hh,
-            hh_table_data)
-        logging.info(f'hh {hh_table_data}')
+            hh_table_vacancies_info)
+        logging.info(f'hh {hh_table_vacancies_info}')
 
     for programming_lang in POPULAR_LANGUAGES:
-        sj_response = fetch_sj_vacancies(programming_lang, sj_key)
+        sj_response = fetch_sj_vacancies(programming_lang, sj_api_key)
         all_sj_vacancies = sj_response['objects']
         vacancies_found = sj_response['total']
         average_salary, vacancies_processed = average_salary_and_vacancy_processed_sj(all_sj_vacancies)
 
         prepare_salary_to_table(
             programming_lang, vacancies_found, vacancies_processed,
-            average_salary, sj_table_data)
-        logging.info(f'sj {sj_table_data}')
+            average_salary, sj_table_vacancies_info)
+        logging.info(f'sj {sj_table_vacancies_info}')
 
-    sj_table = AsciiTable(sj_table_data, 'SuperJob Moscow')
+    sj_table = AsciiTable(sj_table_vacancies_info, 'SuperJob Moscow')
     print(sj_table.table)
 
-    hh_table = AsciiTable(hh_table_data, 'HH Moscow')
+    hh_table = AsciiTable(hh_table_vacancies_info, 'HH Moscow')
     print(hh_table.table)
