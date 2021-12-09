@@ -33,22 +33,26 @@ def fetch_sj_vacancies(profession, sj_key):
     return response.json()
 
 
-def predict_salary(salary_info, field_from, field_to):
-    if not salary_info[field_from] and not salary_info[field_to]:
+def predict_salary(field_from, field_to):
+    if not field_from and not field_to:
         return None
-    if not salary_info[field_from]:
-        return salary_info[field_to] * 0.8
-    elif not salary_info[field_to]:
-        return salary_info[field_from] * 1.2
+    if not field_from:
+        return field_to * 0.8
+    elif not field_to:
+        return field_from * 1.2
     else:
-        return (salary_info[field_from] + salary_info[field_to]) / 2
+        return (field_from + field_to) / 2
 
 
 def predict_rub_salary_for_hh(vacancy):
     vacancy_salary = vacancy['salary']
+    if not vacancy_salary:
+        return None
+    salary_from = vacancy_salary['from']
+    salary_to = vacancy_salary['to']
     if not vacancy_salary or vacancy_salary['currency'] != 'RUR':
         return None
-    return predict_salary(vacancy_salary, 'from', 'to')
+    return predict_salary(salary_from, salary_to)
 
 
 def prepare_salary_to_table(
@@ -70,7 +74,7 @@ def fetch_all_pages_vacancy(language):
     all_lang_vacancies += hh_api_response['items']
     pages = hh_api_response['pages']
     time.sleep(1)
-    for page in range(1, 3):
+    for page in range(1, pages):
         hh_api_response = fetch_hh_vacancies(language, page)
         all_lang_vacancies += hh_api_response['items']
         time.sleep(2)
@@ -93,7 +97,9 @@ def get_average_salary_and_vacancy_processed_sj(all_vacancies):
     vacancies_processed = 0
     average_salary = 0
     for vacancy in all_vacancies:
-        salary = predict_salary(vacancy, 'payment_from', 'payment_to')
+        salary_from = vacancy['payment_from']
+        salary_to = vacancy['payment_to']
+        salary = predict_salary(salary_from, salary_to)
         if salary:
             vacancies_processed += 1
             average_salary += salary
