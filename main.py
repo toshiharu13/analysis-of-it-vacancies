@@ -65,16 +65,16 @@ def prepare_salary_to_table(
 
 
 def fetch_all_pages_vacancy(language):
-    response_hh_api = fetch_hh_vacancies(language)
+    hh_api_response = fetch_hh_vacancies(language)
     all_lang_vacancies = []
-    all_lang_vacancies += response_hh_api['items']
-    pages = response_hh_api['pages']
+    all_lang_vacancies += hh_api_response['items']
+    pages = hh_api_response['pages']
     time.sleep(1)
     for page in range(1, 3):
-        response_hh_api = fetch_hh_vacancies(language, page)
-        all_lang_vacancies += response_hh_api['items']
+        hh_api_response = fetch_hh_vacancies(language, page)
+        all_lang_vacancies += hh_api_response['items']
         time.sleep(2)
-    return all_lang_vacancies, response_hh_api['found']
+    return all_lang_vacancies, hh_api_response['found']
 
 
 def get_average_salary_and_vacancy_processed_hh(all_vacancies):
