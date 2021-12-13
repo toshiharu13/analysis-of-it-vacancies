@@ -7,21 +7,21 @@ from dotenv import load_dotenv
 from terminaltables import AsciiTable
 
 
-def fetch_hh_vacancies(language, page=0, per_page=20):
+def fetch_hh_vacancies(language, moscow, page=0, per_page=20):
     params = {
         'text': language,
         'page': page,
         'per_page': per_page,
-        'area': MOSCOW
+        'area': moscow
     }
     req = requests.get('https://api.hh.ru/vacancies', params=params)
     req.raise_for_status()
     return req.json()
 
 
-def fetch_sj_vacancies(language, page=0, count=20):
+def fetch_sj_vacancies(language, sj_api_key, page=0, count=20):
     headers = {
-        'X-Api-App-Id': os.getenv('SUPERJOB_KEY')
+        'X-Api-App-Id': sj_api_key
     }
     params = {
         'keyword': language,
@@ -71,21 +71,21 @@ def prepare_salary_to_table(
 
 
 
-def fetch_all_pages_hh_vacancy(language):
-    hh_api_response = fetch_hh_vacancies(language)
+def fetch_all_pages_hh_vacancy(language, moscow):
+    hh_api_response = fetch_hh_vacancies(language, moscow)
     all_lang_vacancies = []
     all_lang_vacancies += hh_api_response['items']
     pages = hh_api_response['pages']
     time.sleep(1)
     for page in range(1, pages):
-        hh_api_response = fetch_hh_vacancies(language, page)
+        hh_api_response = fetch_hh_vacancies(language, moscow, page)
         all_lang_vacancies += hh_api_response['items']
         time.sleep(2)
     return all_lang_vacancies, hh_api_response['found']
 
 
-def fetch_all_pages_sj_vacancy(language):
-    api_response = fetch_sj_vacancies(language)
+def fetch_all_pages_sj_vacancy(language, sj_api_key):
+    api_response = fetch_sj_vacancies(language, sj_api_key)
     all_lang_vacancies = []
     all_lang_vacancies += api_response['objects']
     count_vacancies = api_response['total']
@@ -94,7 +94,7 @@ def fetch_all_pages_sj_vacancy(language):
     if pages <= 1:
         return all_lang_vacancies, api_response['found']
     for page in range(1, pages):
-        api_response = fetch_sj_vacancies(language, page)
+        api_response = fetch_sj_vacancies(language, sj_api_key, page)
         all_lang_vacancies += api_response['objects']
         time.sleep(2)
     return all_lang_vacancies, count_vacancies
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         'C',
         'Go'
     }
-    MOSCOW = 1
+    moscow = 1
     logging.basicConfig(
         level=logging.DEBUG,
         format='%(asctime)s; %(levelname)s; %(name)s; %(message)s',
@@ -147,12 +147,12 @@ if __name__ == "__main__":
     )
     load_dotenv()
 
-    #sj_api_key = os.getenv('SUPERJOB_KEY')
+    sj_api_key = os.getenv('SUPERJOB_KEY')
     hh_table_vacancies_info = []
     sj_table_vacancies_info = []
 
     for programm_lang in POPULAR_LANGUAGES:
-        all_hh_vacancies, hh_vacancies_found = fetch_all_pages_hh_vacancy(programm_lang)
+        all_hh_vacancies, hh_vacancies_found = fetch_all_pages_hh_vacancy(programm_lang, moscow)
         hh_average_salary, hh_vacancies_processed = get_average_salary_and_vacancy_processed_hh(all_hh_vacancies)
 
         prepare_salary_to_table(
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         logging.info(f'hh {hh_table_vacancies_info}')
 
     for programming_lang in POPULAR_LANGUAGES:
-        all_sj_vacancies, sj_vacancies_found = fetch_all_pages_sj_vacancy(programming_lang)
+        all_sj_vacancies, sj_vacancies_found = fetch_all_pages_sj_vacancy(programming_lang,sj_api_key)
         sj_average_salary, sj_vacancies_processed = get_average_salary_and_vacancy_processed_sj(all_sj_vacancies)
 
         prepare_salary_to_table(
