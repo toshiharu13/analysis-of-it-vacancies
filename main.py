@@ -70,7 +70,6 @@ def prepare_salary_to_table(
         [programm_lang, vacancies_found, vacancies_processed, average_salary])
 
 
-
 def fetch_all_pages_hh_vacancy(language, moscow):
     hh_api_response = fetch_hh_vacancies(language, moscow)
     all_lang_vacancies = []
@@ -127,8 +126,8 @@ def get_average_salary_and_vacancy_processed_sj(all_vacancies):
     return average_salary, vacancies_processed
 
 
-if __name__ == "__main__":
-    POPULAR_LANGUAGES = {
+def main():
+    popular_languages = {
         'Python',
         'Java',
         'Javascript',
@@ -151,7 +150,7 @@ if __name__ == "__main__":
     hh_table_vacancies_info = []
     sj_table_vacancies_info = []
 
-    for programm_lang in POPULAR_LANGUAGES:
+    for programm_lang in popular_languages:
         all_hh_vacancies, hh_vacancies_found = fetch_all_pages_hh_vacancy(programm_lang, moscow)
         hh_average_salary, hh_vacancies_processed = get_average_salary_and_vacancy_processed_hh(all_hh_vacancies)
 
@@ -161,7 +160,7 @@ if __name__ == "__main__":
             hh_table_vacancies_info)
         logging.info(f'hh {hh_table_vacancies_info}')
 
-    for programming_lang in POPULAR_LANGUAGES:
+    for programming_lang in popular_languages:
         all_sj_vacancies, sj_vacancies_found = fetch_all_pages_sj_vacancy(programming_lang,sj_api_key)
         sj_average_salary, sj_vacancies_processed = get_average_salary_and_vacancy_processed_sj(all_sj_vacancies)
 
@@ -175,3 +174,7 @@ if __name__ == "__main__":
 
     hh_table = AsciiTable(hh_table_vacancies_info, 'HH Moscow')
     print(hh_table.table)
+
+
+if __name__ == "__main__":
+    main()
