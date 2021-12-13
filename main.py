@@ -85,24 +85,24 @@ def fetch_all_hh_vacancy_pages(language, moscow):
 
 def fetch_all_sj_vacancy_pages(language, sj_api_key):
     api_response = fetch_sj_vacancies(language, sj_api_key)
-    all_lang_vacancies = []
-    all_lang_vacancies += api_response['objects']
+    lang_vacancies = []
+    lang_vacancies += api_response['objects']
     vacancies_count = api_response['total']
     pages = vacancies_count // 20
     time.sleep(1)
     if pages <= 1:
-        return all_lang_vacancies, api_response['found']
+        return lang_vacancies, api_response['found']
     for page in range(1, 2):
         api_response = fetch_sj_vacancies(language, sj_api_key, page)
-        all_lang_vacancies += api_response['objects']
+        lang_vacancies += api_response['objects']
         time.sleep(2)
-    return all_lang_vacancies, vacancies_count
+    return lang_vacancies, vacancies_count
 
 
-def get_average_salary_and_vacancy_processed_hh(all_vacancies):
+def get_hh_average_salary_and_vacancy_processed(vacancies):
     vacancies_processed = 0
     average_salary = 0
-    for vacancy in all_vacancies:
+    for vacancy in vacancies:
         salary = predict_rub_salary_for_hh(vacancy)
         if salary:
             vacancies_processed += 1
@@ -111,10 +111,10 @@ def get_average_salary_and_vacancy_processed_hh(all_vacancies):
     return average_salary, vacancies_processed
 
 
-def get_average_salary_and_vacancy_processed_sj(all_vacancies):
+def get_sj_average_salary_and_vacancy_processed(vacancies):
     vacancies_processed = 0
     average_salary = 0
-    for vacancy in all_vacancies:
+    for vacancy in vacancies:
         salary_from = vacancy['payment_from']
         salary_to = vacancy['payment_to']
         salary = predict_salary(salary_from, salary_to)
@@ -147,32 +147,32 @@ def main():
     load_dotenv()
 
     sj_api_key = os.getenv('SUPERJOB_KEY')
-    hh_table_vacancies_info = []
-    sj_table_vacancies_info = []
+    hh_table_vacancies = []
+    sj_table_vacancies = []
 
     for programm_lang in popular_languages:
         all_hh_vacancies, hh_vacancies_found = fetch_all_hh_vacancy_pages(programm_lang, moscow)
-        hh_average_salary, hh_vacancies_processed = get_average_salary_and_vacancy_processed_hh(all_hh_vacancies)
+        hh_average_salary, hh_vacancies_processed = get_hh_average_salary_and_vacancy_processed(all_hh_vacancies)
 
         prepare_salary_to_table(
             programm_lang, hh_vacancies_found, hh_vacancies_processed,
             hh_average_salary,
-            hh_table_vacancies_info)
-        logging.info(f'hh {hh_table_vacancies_info}')
+            hh_table_vacancies)
+        logging.info(f'hh {hh_table_vacancies}')
 
     for programming_lang in popular_languages:
         all_sj_vacancies, sj_vacancies_found = fetch_all_sj_vacancy_pages(programming_lang, sj_api_key)
-        sj_average_salary, sj_vacancies_processed = get_average_salary_and_vacancy_processed_sj(all_sj_vacancies)
+        sj_average_salary, sj_vacancies_processed = get_sj_average_salary_and_vacancy_processed(all_sj_vacancies)
 
         prepare_salary_to_table(
             programming_lang, sj_vacancies_found, sj_vacancies_processed,
-            sj_average_salary, sj_table_vacancies_info)
-        logging.info(f'sj {sj_table_vacancies_info}')
+            sj_average_salary, sj_table_vacancies)
+        logging.info(f'sj {sj_table_vacancies}')
 
-    sj_table = AsciiTable(sj_table_vacancies_info, 'SuperJob Moscow')
+    sj_table = AsciiTable(sj_table_vacancies, 'SuperJob Moscow')
     print(sj_table.table)
 
-    hh_table = AsciiTable(hh_table_vacancies_info, 'HH Moscow')
+    hh_table = AsciiTable(hh_table_vacancies, 'HH Moscow')
     print(hh_table.table)
 
 
