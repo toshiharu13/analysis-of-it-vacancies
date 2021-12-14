@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+from itertools import count
 
 import requests
 from dotenv import load_dotenv
@@ -49,10 +50,11 @@ def predict_salary(field_from, field_to):
 
 def predict_rub_salary_for_hh(vacancy):
     vacancy_salary = vacancy['salary']
-    salary_from = vacancy_salary['from']
-    salary_to = vacancy_salary['to']
     if not vacancy_salary or vacancy_salary['currency'] != 'RUR':
         return None
+    salary_from = vacancy_salary['from']
+    salary_to = vacancy_salary['to']
+
     return predict_salary(salary_from, salary_to)
 
 
@@ -64,32 +66,25 @@ def prepare_vacancies_to_table(table_vacancies_info):
 
 
 def fetch_all_hh_vacancy_pages(language, moscow):
-    hh_api_response = fetch_hh_vacancies(language, moscow)
     all_lang_vacancies = []
-    all_lang_vacancies += hh_api_response['items']
-    pages = hh_api_response['pages']
-    time.sleep(1)
-    for page in range(1, 2):
+    for page in count():
         hh_api_response = fetch_hh_vacancies(language, moscow, page)
         all_lang_vacancies += hh_api_response['items']
-        time.sleep(2)
-    return all_lang_vacancies, hh_api_response['found']
+        pages = hh_api_response['pages']
+        if page == pages - 1:
+            return all_lang_vacancies, hh_api_response['found']
+        time.sleep(1.5)
 
 
 def fetch_all_sj_vacancy_pages(language, sj_api_key):
-    api_response = fetch_sj_vacancies(language, sj_api_key)
     lang_vacancies = []
-    lang_vacancies += api_response['objects']
-    vacancies_count = api_response['total']
-    pages = vacancies_count // 20
-    time.sleep(1)
-    if pages <= 1:
-        return lang_vacancies, api_response['found']
-    for page in range(1, 2):
+    for page in count():
         api_response = fetch_sj_vacancies(language, sj_api_key, page)
         lang_vacancies += api_response['objects']
-        time.sleep(2)
-    return lang_vacancies, vacancies_count
+        vacancies_count = api_response['total']
+        if not api_response['more']:
+            return lang_vacancies, vacancies_count
+        time.sleep(1.5)
 
 
 def get_hh_average_salary_and_vacancy_processed(vacancies):
