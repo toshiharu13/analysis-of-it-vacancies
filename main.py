@@ -59,8 +59,7 @@ def predict_rub_salary_for_hh(vacancy):
 
 
 def prepare_vacancies_to_table(table_vacancies_info):
-    final_table = []
-    final_table.append(['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'])
+    final_table = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
     final_table.extend(table_vacancies_info)
     return final_table
 
@@ -128,14 +127,14 @@ def collect_sj_vacancies(programm_lang, vacancies_found, vacancies_processed,
 
 def main():
     popular_languages = {
-        'Python',
-        'Java',
-        'Javascript',
-        'PHP',
-        'C++',
-        'C#',
         'C',
-        'Go'
+        #'Python',
+        #'Java',
+        #'Javascript',
+        #'PHP',
+        #'C++',
+        #'C#',
+        #'Go'
     }
     moscow = 1
     logging.basicConfig(
