@@ -49,8 +49,6 @@ def predict_salary(field_from, field_to):
 
 def predict_rub_salary_for_hh(vacancy):
     vacancy_salary = vacancy['salary']
-    if not vacancy_salary:
-        return None
     salary_from = vacancy_salary['from']
     salary_to = vacancy_salary['to']
     if not vacancy_salary or vacancy_salary['currency'] != 'RUR':
@@ -131,6 +129,7 @@ def collect_sj_vacancies(programm_lang, vacancies_found, vacancies_processed,
                          average_salary, sj_table_vacancies):
     sj_table_vacancies.append(
         [programm_lang, vacancies_found, vacancies_processed, average_salary])
+
 
 def main():
     popular_languages = {
