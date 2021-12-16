@@ -57,10 +57,10 @@ def predict_rub_salary_for_hh(vacancy):
     return predict_salary(salary_from, salary_to)
 
 
-def prepare_vacancies_to_table(table_vacancies):
+def build_vacancy_stats_table(table_vacancies, table_title):
     final_table = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
     final_table.extend(table_vacancies)
-    return final_table
+    return AsciiTable(final_table, table_title)
 
 
 def fetch_all_hh_vacancy_pages(language, moscow):
@@ -133,56 +133,64 @@ def collect_sj_vacancies(programm_lang, vacancies_found, vacancies_processed,
         [programm_lang, vacancies_found, vacancies_processed, average_salary])
 
 
+def get_hh_vacancies_salary(popular_languages, moscow, hh_table_vacancies):
+    for programm_lang in popular_languages:
+        all_hh_vacancies, hh_vacancies_found = fetch_all_hh_vacancy_pages(
+            programm_lang, moscow)
+        hh_average_salary, hh_vacancies_processed = get_hh_average_salary_and_vacancy_processed(
+            all_hh_vacancies)
+
+        collect_hh_vacancies(
+            programm_lang, hh_vacancies_found, hh_vacancies_processed,
+            hh_average_salary,
+            hh_table_vacancies)
+
+
+def get_sj_vacancies_salary(popular_languages, sj_api_key, sj_table_vacancies):
+    for programming_lang in popular_languages:
+        all_sj_vacancies, sj_vacancies_found = fetch_all_sj_vacancy_pages(
+            programming_lang, sj_api_key)
+        sj_average_salary, sj_vacancies_processed = get_sj_average_salary_and_vacancy_processed(
+            all_sj_vacancies)
+
+        collect_sj_vacancies(
+            programming_lang, sj_vacancies_found, sj_vacancies_processed,
+            sj_average_salary, sj_table_vacancies)
+
+
 def main():
     popular_languages = {
+        'C#',
+        'Python',
+        'Java',
+        'Javascript',
+        'PHP',
+        'C++',
         'C',
-        #'Python',
-        #'Java',
-        #'Javascript',
-        #'PHP',
-        #'C++',
-        #'C#',
-        #'Go'
+        'Go'
     }
     moscow = 1
     logging.basicConfig(
         level=logging.DEBUG,
         format='%(asctime)s; %(levelname)s; %(name)s; %(message)s',
         filename='logs.log',
-        filemode='w',
-    )
+        filemode='w',)
     load_dotenv()
 
     sj_api_key = os.getenv('SUPERJOB_KEY')
     hh_table_vacancies = []
     sj_table_vacancies = []
 
-    for programm_lang in popular_languages:
-        all_hh_vacancies, hh_vacancies_found = fetch_all_hh_vacancy_pages(programm_lang, moscow)
-        hh_average_salary, hh_vacancies_processed = get_hh_average_salary_and_vacancy_processed(all_hh_vacancies)
+    get_hh_vacancies_salary(popular_languages, moscow, hh_table_vacancies)
+    logging.info(f'hh {hh_table_vacancies}')
+    get_sj_vacancies_salary(popular_languages, sj_api_key, sj_table_vacancies)
+    logging.info(f'sj {sj_table_vacancies}')
 
-        collect_hh_vacancies(
-            programm_lang, hh_vacancies_found, hh_vacancies_processed,
-            hh_average_salary,
-            hh_table_vacancies)
-        logging.info(f'hh {hh_table_vacancies}')
+    sj_table = build_vacancy_stats_table(sj_table_vacancies, 'SJ Moscow')
+    hh_table = build_vacancy_stats_table(hh_table_vacancies, 'HH Moscow')
 
-    for programming_lang in popular_languages:
-        all_sj_vacancies, sj_vacancies_found = fetch_all_sj_vacancy_pages(programming_lang, sj_api_key)
-        sj_average_salary, sj_vacancies_processed = get_sj_average_salary_and_vacancy_processed(all_sj_vacancies)
-
-        collect_sj_vacancies(
-            programming_lang, sj_vacancies_found, sj_vacancies_processed,
-            sj_average_salary, sj_table_vacancies)
-        logging.info(f'sj {sj_table_vacancies}')
-
-    sj_table = AsciiTable(
-        prepare_vacancies_to_table(sj_table_vacancies), 'SuperJob Moscow')
-    print(sj_table.table)
-
-    hh_table = AsciiTable(
-        prepare_vacancies_to_table(hh_table_vacancies), 'HH Moscow')
     print(hh_table.table)
+    print(sj_table.table)
 
 
 if __name__ == "__main__":
