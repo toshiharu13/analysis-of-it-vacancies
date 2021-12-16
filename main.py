@@ -139,11 +139,8 @@ def get_hh_vacancies_salary(popular_languages, moscow, hh_table_vacancies):
             programm_lang, moscow)
         hh_average_salary, hh_vacancies_processed = get_hh_average_salary_and_vacancy_processed(
             all_hh_vacancies)
-
-        collect_hh_vacancies(
-            programm_lang, hh_vacancies_found, hh_vacancies_processed,
-            hh_average_salary,
-            hh_table_vacancies)
+        hh_table_vacancies.append([programm_lang, hh_vacancies_found,
+                                   hh_vacancies_processed, hh_average_salary])
 
 
 def get_sj_vacancies_salary(popular_languages, sj_api_key, sj_table_vacancies):
@@ -152,10 +149,8 @@ def get_sj_vacancies_salary(popular_languages, sj_api_key, sj_table_vacancies):
             programming_lang, sj_api_key)
         sj_average_salary, sj_vacancies_processed = get_sj_average_salary_and_vacancy_processed(
             all_sj_vacancies)
-
-        collect_sj_vacancies(
-            programming_lang, sj_vacancies_found, sj_vacancies_processed,
-            sj_average_salary, sj_table_vacancies)
+        sj_table_vacancies.append([programming_lang, sj_vacancies_found,
+                                   sj_vacancies_processed, sj_average_salary])
 
 
 def main():
