@@ -15,9 +15,9 @@ def fetch_hh_vacancies(language, moscow, page=0, per_page=20):
         'per_page': per_page,
         'area': moscow
     }
-    req = requests.get('https://api.hh.ru/vacancies', params=params)
-    req.raise_for_status()
-    return req.json()
+    response = requests.get('https://api.hh.ru/vacancies', params=params)
+    response.raise_for_status()
+    return response.json()
 
 
 def fetch_sj_vacancies(language, sj_api_key, page=0, count=20):
@@ -44,8 +44,7 @@ def predict_salary(field_from, field_to):
         return field_to * 0.8
     elif not field_to:
         return field_from * 1.2
-    else:
-        return (field_from + field_to) / 2
+    return (field_from + field_to) / 2
 
 
 def predict_rub_salary_for_hh(vacancy):
@@ -58,9 +57,9 @@ def predict_rub_salary_for_hh(vacancy):
     return predict_salary(salary_from, salary_to)
 
 
-def prepare_vacancies_to_table(table_vacancies_info):
+def prepare_vacancies_to_table(table_vacancies):
     final_table = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
-    final_table.extend(table_vacancies_info)
+    final_table.extend(table_vacancies)
     return final_table
 
 
