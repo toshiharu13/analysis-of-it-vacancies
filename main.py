@@ -120,24 +120,28 @@ def get_sj_average_salary_and_vacancy_processed(vacancies):
     return average_salary, vacancies_processed
 
 
-def get_hh_vacancies_salary(popular_languages, moscow, hh_table_vacancies):
+def get_hh_vacancies_salary(popular_languages, moscow):
+    local_hh_table_vacancies = []
     for programm_lang in popular_languages:
         all_hh_vacancies, hh_vacancies_found = fetch_all_hh_vacancy_pages(
             programm_lang, moscow)
         hh_average_salary, hh_vacancies_processed = get_hh_average_salary_and_vacancy_processed(
             all_hh_vacancies)
-        hh_table_vacancies.append([programm_lang, hh_vacancies_found,
+        local_hh_table_vacancies.append([programm_lang, hh_vacancies_found,
                                    hh_vacancies_processed, hh_average_salary])
+    return local_hh_table_vacancies
 
 
-def get_sj_vacancies_salary(popular_languages, sj_api_key, sj_table_vacancies):
+def get_sj_vacancies_salary(popular_languages, sj_api_key):
+    local_sj_table_vacancies = []
     for programming_lang in popular_languages:
         all_sj_vacancies, sj_vacancies_found = fetch_all_sj_vacancy_pages(
             programming_lang, sj_api_key)
         sj_average_salary, sj_vacancies_processed = get_sj_average_salary_and_vacancy_processed(
             all_sj_vacancies)
-        sj_table_vacancies.append([programming_lang, sj_vacancies_found,
+        local_sj_table_vacancies.append([programming_lang, sj_vacancies_found,
                                    sj_vacancies_processed, sj_average_salary])
+    return local_sj_table_vacancies
 
 
 def main():
@@ -163,9 +167,12 @@ def main():
     hh_table_vacancies = []
     sj_table_vacancies = []
 
-    get_hh_vacancies_salary(popular_languages, moscow, hh_table_vacancies)
+    hh_vacancies_for_table = get_hh_vacancies_salary(popular_languages, moscow)
+    hh_table_vacancies.append(*hh_vacancies_for_table)
     logging.info(f'hh {hh_table_vacancies}')
-    get_sj_vacancies_salary(popular_languages, sj_api_key, sj_table_vacancies)
+    sj_vacancies_for_table = get_sj_vacancies_salary(
+        popular_languages, sj_api_key)
+    sj_table_vacancies.append(*sj_vacancies_for_table)
     logging.info(f'sj {sj_table_vacancies}')
 
     sj_table = build_vacancy_stats_table(sj_table_vacancies, 'SJ Moscow')
