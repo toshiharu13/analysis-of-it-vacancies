@@ -96,7 +96,7 @@ def get_hh_average_salary_and_vacancy_processed(vacancies):
     try:
         average_salary = int(average_salary / vacancies_processed)
     except ZeroDivisionError:
-        print('не обработана ни одна вакансия')
+        logging.info('не обработана ни одна вакансия')
         average_salary = 0
     return average_salary, vacancies_processed
 
@@ -118,19 +118,6 @@ def get_sj_average_salary_and_vacancy_processed(vacancies):
         print('не обработана ни одна вакансия')
         average_salary = 0
     return average_salary, vacancies_processed
-
-
-
-def collect_hh_vacancies(programm_lang, vacancies_found, vacancies_processed,
-                         average_salary, hh_table_vacancies):
-    hh_table_vacancies.append(
-        [programm_lang, vacancies_found, vacancies_processed, average_salary])
-
-
-def collect_sj_vacancies(programm_lang, vacancies_found, vacancies_processed,
-                         average_salary, sj_table_vacancies):
-    sj_table_vacancies.append(
-        [programm_lang, vacancies_found, vacancies_processed, average_salary])
 
 
 def get_hh_vacancies_salary(popular_languages, moscow, hh_table_vacancies):
